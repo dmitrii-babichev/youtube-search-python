@@ -136,10 +136,10 @@ class PlaylistCore(RequestCore):
         # inforenderer = sidebar[0]["playlistSidebarPrimaryInfoRenderer"]
         # channel_details_available = len(sidebar) != 1
         # channelrenderer = sidebar[1]["playlistSidebarSecondaryInfoRenderer"]["videoOwner"]["videoOwnerRenderer"] if channel_details_available else None
-        if self.responseSource is None:
-            videorenderer = None
-        else:
+        try:
             videorenderer = self.__getFirstValue(self.responseSource, ["contents", "twoColumnBrowseResultsRenderer", "tabs", None, "tabRenderer", "content", "sectionListRenderer", "contents", None, "itemSectionRenderer", "contents", None, "playlistVideoListRenderer", "contents"])
+        except BaseException as e:
+            videorenderer = None
         videos = []
         if videorenderer is not None:
             for video in videorenderer:
