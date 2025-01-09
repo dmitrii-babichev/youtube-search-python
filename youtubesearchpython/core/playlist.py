@@ -132,51 +132,52 @@ class PlaylistCore(RequestCore):
 
     def __getComponents(self) -> None:
         #print(self.responseSource)
-        sidebar = self.responseSource["sidebar"]["playlistSidebarRenderer"]["items"]
-        inforenderer = sidebar[0]["playlistSidebarPrimaryInfoRenderer"]
-        channel_details_available = len(sidebar) != 1
-        channelrenderer = sidebar[1]["playlistSidebarSecondaryInfoRenderer"]["videoOwner"]["videoOwnerRenderer"] if channel_details_available else None
+        # sidebar = self.responseSource["sidebar"]["playlistSidebarRenderer"]["items"]
+        # inforenderer = sidebar[0]["playlistSidebarPrimaryInfoRenderer"]
+        # channel_details_available = len(sidebar) != 1
+        # channelrenderer = sidebar[1]["playlistSidebarSecondaryInfoRenderer"]["videoOwner"]["videoOwnerRenderer"] if channel_details_available else None
         videorenderer: list = self.__getFirstValue(self.responseSource, ["contents", "twoColumnBrowseResultsRenderer", "tabs", None, "tabRenderer", "content", "sectionListRenderer", "contents", None, "itemSectionRenderer", "contents", None, "playlistVideoListRenderer", "contents"])
         videos = []
-        for video in videorenderer:
-            try:
-                video = video["playlistVideoRenderer"]
-                j = {
-                    "id": self.__getValue(video, ["videoId"]),
-                    "thumbnails": self.__getValue(video, ["thumbnail", "thumbnails"]),
-                    "title": self.__getValue(video, ["title", "runs", 0, "text"]),
-                    "channel": {
-                        "name": self.__getValue(video, ["shortBylineText", "runs", 0, "text"]),
-                        "id": self.__getValue(video, ["shortBylineText", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId"]),
-                        "link": self.__getValue(video, ["shortBylineText", "runs", 0, "navigationEndpoint", "browseEndpoint", "canonicalBaseUrl"]),
-                    },
-                    "duration": self.__getValue(video, ["lengthText", "simpleText"]),
-                    "accessibility": {
-                        "title": self.__getValue(video, ["title", "accessibility", "accessibilityData", "label"]),
-                        "duration": self.__getValue(video, ["lengthText", "accessibility", "accessibilityData", "label"]),
-                    },
-                    "link": "https://www.youtube.com" + self.__getValue(video, ["navigationEndpoint", "commandMetadata", "webCommandMetadata", "url"]),
-                    "isPlayable": self.__getValue(video, ["isPlayable"]),
-                }
-                videos.append(j)
-            except:
-                pass
+        if videorenderer is not None:
+            for video in videorenderer:
+                try:
+                    video = video["playlistVideoRenderer"]
+                    j = {
+                        "id": self.__getValue(video, ["videoId"]),
+                        "thumbnails": self.__getValue(video, ["thumbnail", "thumbnails"]),
+                        "title": self.__getValue(video, ["title", "runs", 0, "text"]),
+                        "channel": {
+                            "name": self.__getValue(video, ["shortBylineText", "runs", 0, "text"]),
+                            "id": self.__getValue(video, ["shortBylineText", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId"]),
+                            "link": self.__getValue(video, ["shortBylineText", "runs", 0, "navigationEndpoint", "browseEndpoint", "canonicalBaseUrl"]),
+                        },
+                        "duration": self.__getValue(video, ["lengthText", "simpleText"]),
+                        "accessibility": {
+                            "title": self.__getValue(video, ["title", "accessibility", "accessibilityData", "label"]),
+                            "duration": self.__getValue(video, ["lengthText", "accessibility", "accessibilityData", "label"]),
+                        },
+                        "link": "https://www.youtube.com" + self.__getValue(video, ["navigationEndpoint", "commandMetadata", "webCommandMetadata", "url"]),
+                        "isPlayable": self.__getValue(video, ["isPlayable"]),
+                    }
+                    videos.append(j)
+                except:
+                    pass
 
         playlistElement = {
             'info': {
-                "id": self.__getValue(inforenderer, ["title", "runs", 0, "navigationEndpoint", "watchEndpoint", "playlistId"]),
-                "thumbnails": self.__getValue(inforenderer, ["thumbnailRenderer", "playlistVideoThumbnailRenderer", "thumbnail", "thumbnails"]),
-                "title": self.__getValue(inforenderer, ["title", "runs", 0, "text"]),
-                "videoCount": self.__getValue(inforenderer, ["stats", 0, "runs", 0, "text"]),
-                "viewCount": self.__getValue(inforenderer, ["stats", 1, "simpleText"]),
-                "link": self.__getValue(self.responseSource, ["microformat", "microformatDataRenderer", "urlCanonical"]),
-                "channel": {
-                    "id": self.__getValue(channelrenderer, ["title", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId"]) if channel_details_available else None,
-                    "name": self.__getValue(channelrenderer, ["title", "runs", 0, "text"]) if channel_details_available else None,
-                    "detailsAvailable": channel_details_available,
-                    "link": "https://www.youtube.com" + self.__getValue(channelrenderer, ["title", "runs", 0, "navigationEndpoint", "browseEndpoint", "canonicalBaseUrl"]) if channel_details_available else None,
-                    "thumbnails": self.__getValue(channelrenderer, ["thumbnail", "thumbnails"]) if channel_details_available else None,
-                }
+                # "id": self.__getValue(inforenderer, ["title", "runs", 0, "navigationEndpoint", "watchEndpoint", "playlistId"]),
+                # "thumbnails": self.__getValue(inforenderer, ["thumbnailRenderer", "playlistVideoThumbnailRenderer", "thumbnail", "thumbnails"]),
+                # "title": self.__getValue(inforenderer, ["title", "runs", 0, "text"]),
+                # "videoCount": self.__getValue(inforenderer, ["stats", 0, "runs", 0, "text"]),
+                # "viewCount": self.__getValue(inforenderer, ["stats", 1, "simpleText"]),
+                # "link": self.__getValue(self.responseSource, ["microformat", "microformatDataRenderer", "urlCanonical"]),
+                # "channel": {
+                #     "id": self.__getValue(channelrenderer, ["title", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId"]) if channel_details_available else None,
+                #     "name": self.__getValue(channelrenderer, ["title", "runs", 0, "text"]) if channel_details_available else None,
+                #     "detailsAvailable": channel_details_available,
+                #     "link": "https://www.youtube.com" + self.__getValue(channelrenderer, ["title", "runs", 0, "navigationEndpoint", "browseEndpoint", "canonicalBaseUrl"]) if channel_details_available else None,
+                #     "thumbnails": self.__getValue(channelrenderer, ["thumbnail", "thumbnails"]) if channel_details_available else None,
+                # }
             },
             'videos': videos,
         }
@@ -186,6 +187,9 @@ class PlaylistCore(RequestCore):
             self.playlistComponent = {"videos": videos}
         else:
             self.playlistComponent = playlistElement
+        if videorenderer is None:
+            self.continuationKey = None
+            return
         self.continuationKey = self.__getValue(videorenderer, [-1, "continuationItemRenderer", "continuationEndpoint", "continuationCommand", "token"])
 
     def __getNextComponents(self) -> None:
